@@ -45,7 +45,7 @@ function Rename-FileIntoDateCode {
     Process {
         Write-Host $FilePath
 
-        $dateCode = Get-DateCodeFromFile -FilePath $FilePath -DateFormat $DateFormat
+        $dateCode = Get-DateCodeFromFile -FilePath "$FilePath" -DateFormat $DateFormat
 
         $f = $null
         try {

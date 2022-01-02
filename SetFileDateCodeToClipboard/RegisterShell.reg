@@ -1,0 +1,9 @@
+Windows Registry Editor Version 5.00
+
+; Set the file date code to the clipboard
+[HKEY_CLASSES_ROOT\*\shell\SetFileDateCodeIso8606JpToClipboard]
+@="Set the file date code to the clipboard"
+"Icon"="C:\\WINDOWS\\System32\\imageres.dll,241"
+
+[HKEY_CLASSES_ROOT\*\shell\SetFileDateCodeIso8606JpToClipboard\command]
+@="C:\\Windows\\System32\\cmd.exe /c \"C:\\PSModules\\SetFileDateCodeToClipboard\\SetFileDateCodeIso8606JpToClipboard.cmd \"%1\"\""

@@ -1,0 +1,9 @@
+Windows Registry Editor Version 5.00
+
+; Edit file creation time from name
+[HKEY_CLASSES_ROOT\*\shell\ChangeFileCreationTimeFromName]
+@="Change file creation time from name"
+"Icon"="C:\\WINDOWS\\System32\\wmploc.dll,13"
+
+[HKEY_CLASSES_ROOT\*\shell\ChangeFileCreationTimeFromName\command]
+@="C:\\Windows\\System32\\cmd.exe /c \"C:\\PSModules\\EditFileCreationTimeFromName\\ChangeFileCreationTimeFromName.cmd \"%1\"\""

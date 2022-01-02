@@ -6,18 +6,23 @@ Get a date code from the specified file.
 Get the older date time string from the specified file.
 
 .Parameter FilePath
-The file path.
+The file path. It's need the file name including a year to a time sec.
 
 .Example
 PS> Get-DateTimeFromFileName -FilePath "C:\20181115T194401_myphoto.jpg"
-Created:  2018/11/15 19:44:01
-Modefied: 2021/12/31 18:22:21
-20181115T194401
+yyyy: 2018
+MM: 11
+dd: 15
+hh: 19
+mm: 44
+ss: 01
+[OK] It's the correct date string
+
+2018年11月15日 19:44:01
 
 .Example
-PS> Get-DateCodeFromFile -FilePath "C:\myphoto.jpg" -DateFormat "yy-MM-dd" | Set-Clipboard
-Created:  2018/11/15 19:44:01
-Modefied: 2021/12/31 18:22:21
+PS> Get-DateTimeFromFileName -FilePath "C:\2018-11-15.jpg"
+Get-DateTimeFromFileName : This file name is not type of the date code: "2018-11-15.mp4"
 #>
 $ErrorActionPreference = "Stop"
 Set-StrictMode -Version 2.0
@@ -53,12 +58,13 @@ function Get-DateTimeFromFileName {
             Write-Host ('ss: {0}' -f $Matches[6])
         }
         else {
-            Write-Error "This file name is not type of the date code: `"$Arg`""
+            Write-Error "This file name is not type of the date code: `"$FilePath`""
             exit 1
         }
 
         # Check the number strings
         try {
+            Get-Date -Year $Matches[1] | Out-Null
             Get-Date -Month $Matches[2] | Out-Null
             Get-Date -Day $Matches[3] | Out-Null
             Get-Date -Hour $Matches[4] | Out-Null
@@ -74,9 +80,14 @@ function Get-DateTimeFromFileName {
         # Create the date time
         $dateStr = [string]::Concat($Matches[1], "/", $Matches[2], "/", $Matches[3], " ", $Matches[4], ":", $Matches[5], ":", $Matches[6])
 
-        $dateTime = [DateTime]::ParseExact($dateStr, "yyyy/MM/dd hh:mm:ss", $null)
+        try {
+            $dateTime = [DateTime]::ParseExact($dateStr, "yyyy/MM/dd HH:mm:ss", $null)
+        }
+        catch {
+            Write-Error $_
+            exit 1
+        }
 
-        Write-Host foobar
         return $dateTime
     }
 }

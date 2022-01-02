@@ -1,0 +1,17 @@
+Windows Registry Editor Version 5.00
+
+; Add date code to file name prefix
+[HKEY_CLASSES_ROOT\*\shell\AddDateCodeIso8601JpToPrefix]
+@="Add date code to file name prefix"
+"Icon"="C:\\WINDOWS\\System32\\SHELL32.dll,133"
+
+[HKEY_CLASSES_ROOT\*\shell\AddDateCodeIso8601JpToPrefix\command]
+@="C:\\Windows\\System32\\cmd.exe /c \"C:\\PSModules\\RenameFileIntoDateCode\\AddDateCodeIso8601JpToPrefix.cmd \"%1\"\""
+
+; Replace file with datacode
+[HKEY_CLASSES_ROOT\*\shell\ReplaceWithDateCodeIso8601Jp]
+@="Replace file with datacode"
+"Icon"="C:\\WINDOWS\\System32\\SHELL32.dll,133"
+
+[HKEY_CLASSES_ROOT\*\shell\ReplaceWithDateCodeIso8601Jp\command]
+@="C:\\Windows\\System32\\cmd.exe /c \"C:\\PSModules\\RenameFileIntoDateCode\\ReplaceWithDateCodeIso8601Jp.cmd \"%1\"\""

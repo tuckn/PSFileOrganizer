@@ -10,3 +10,5 @@ powershell -ExecutionPolicy Bypass -File "%PS1_PATH%" -FilePath "%FilePath%" -Da
 @ECHO OFF
 SET FilePath=
 SET PS1_PATH=
+
+@PAUSE
