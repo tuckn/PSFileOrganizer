@@ -12,19 +12,29 @@ Param(
     [String] $OriginalName = "Post"
 )
 
-$ErrorActionPreference = "Stop"
+$ErrorActionPreference = "Continue"
 Set-StrictMode -Version 2.0
 
 # FilePath is Foler
 if ((Get-Item $FilePath).PSIsContainer) {
     $childPath = Join-Path -Path "$FilePath" -ChildPath "*.*"
     foreach ($f in Get-ChildItem $childPath) {
-        Rename-FileIntoDateCode -FilePath "$($f.FullName)" -DateFormat "$DateFormat" -OriginalName "$OriginalName"
+        try {
+            Rename-FileIntoDateCode -FilePath "$($f.FullName)" -DateFormat "$DateFormat" -OriginalName "$OriginalName"
+        }
+        catch {
+            Write-Error $_
+        }
     }
 }
 # FilePath is File
 elseif (Test-Path -LiteralPath $FilePath) {
-    Rename-FileIntoDateCode -FilePath "$FilePath" -DateFormat "$DateFormat" -OriginalName "$OriginalName"
+    try {
+        Rename-FileIntoDateCode -FilePath "$FilePath" -DateFormat "$DateFormat" -OriginalName "$OriginalName"
+    }
+    catch {
+        Write-Error $_
+    }
 }
 else {
     Write-Error "The file is not existing: `"$FilePath`""

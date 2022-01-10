@@ -5,19 +5,29 @@ Param(
     [String] $FilePath
 )
 
-$ErrorActionPreference = "Stop"
+$ErrorActionPreference = "Continue"
 Set-StrictMode -Version 2.0
 
 # FilePath is Foler
 if ((Get-Item $FilePath).PSIsContainer) {
     $childPath = Join-Path -Path "$FilePath" -ChildPath "*.*"
     foreach ($f in Get-ChildItem $childPath) {
-        Edit-FileCreatinTimeFromName -FilePath "$($f.FullName)"
+        try {
+            Edit-FileCreatinTimeFromName -FilePath "$($f.FullName)"
+        }
+        catch {
+            Write-Error $_
+        }
     }
 }
 # FilePath is File
 elseif (Test-Path -LiteralPath $FilePath) {
-    Edit-FileCreatinTimeFromName -FilePath "$FilePath"
+    try {
+        Edit-FileCreatinTimeFromName -FilePath "$FilePath"
+    }
+    catch {
+        Write-Error $_
+    }
 }
 else {
     Write-Error "The file is not existing: `"$FilePath`""
