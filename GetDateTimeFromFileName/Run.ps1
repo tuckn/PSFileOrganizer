@@ -2,7 +2,11 @@
 
 Param(
     [Parameter(Position = 0, Mandatory = $true)]
-    [String] $FilePath
+    # [ValidateScript({ Test-Path -LiteralPath $_ })]
+    [String] $FilePath,
+
+    [Parameter(Position = 1)]
+    [String] $UnknownTimeAs
 )
 
-Get-DateTimeFromFileName -FilePath "$FilePath"
+Get-DateTimeFromFileName -FilePath "$FilePath" -UnknownTimeAs "$UnknownTimeAs"

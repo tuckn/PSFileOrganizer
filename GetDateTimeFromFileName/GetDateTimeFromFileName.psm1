@@ -1,4 +1,6 @@
-﻿<#
+﻿using module "..\GetDateTimeFromStr\GetDateTimeFromStr.psm1"
+
+<#
 .Synopsis
 Get a date code from the specified file.
 
@@ -6,7 +8,13 @@ Get a date code from the specified file.
 Get the older date time string from the specified file.
 
 .Parameter FilePath
-The file path. It's need the file name including a year to a time sec.
+The file path. This filename needs to include from year to sec by default.
+
+.Parameter UnknownDayAs
+You can use a numeric two-digit number string. For example, "01". Even if the day string analysis becomes an error, if this argument is specified, the process will proceed.
+
+.Parameter UnknownTimeAs
+You can use "hh:mm:ss" format. for example "00:00:00". Even if the time string analysis becomes an error, if this argument is specified, the process will proceed.
 
 .Example
 PS> Get-DateTimeFromFileName -FilePath "C:\20181115T194401_myphoto.jpg"
@@ -22,7 +30,7 @@ ss: 01
 
 .Example
 PS> Get-DateTimeFromFileName -FilePath "C:\2018-11-15.jpg"
-Get-DateTimeFromFileName : This file name is not type of the date code: "2018-11-15.mp4"
+Get-DateTimeFromFileName : This string is not containing the time code "hh:mm:ss": "2018-11-15.jpg"
 #>
 $ErrorActionPreference = "Stop"
 Set-StrictMode -Version 2.0
@@ -32,7 +40,13 @@ function Get-DateTimeFromFileName {
     Param(
         [Parameter(Position = 0, Mandatory = $true)]
         [ValidateScript({ Test-Path -LiteralPath $_ })]
-        [String] $FilePath
+        [String] $FilePath,
+
+        [Parameter(Position = 1)]
+        [String] $UnknownDayAs,
+
+        [Parameter(Position = 2)]
+        [String] $UnknownTimeAs
     )
     Process {
         Write-Host $FilePath
@@ -49,39 +63,8 @@ function Get-DateTimeFromFileName {
         # Extract the date code from the file name
         $bn = $f.BaseName
 
-        if ($bn -match "(\d{4})[_-]*(\d{2})[_-]*(\d{2})[T\s_-](\d{2})[_-]*(\d{2})[_-]*(\d{2})") {
-            Write-Host ('yyyy: {0}' -f $Matches[1])
-            Write-Host ('MM: {0}' -f $Matches[2])
-            Write-Host ('dd: {0}' -f $Matches[3])
-            Write-Host ('hh: {0}' -f $Matches[4])
-            Write-Host ('mm: {0}' -f $Matches[5])
-            Write-Host ('ss: {0}' -f $Matches[6])
-        }
-        else {
-            Write-Error "This file name is not type of the date code: `"$FilePath`""
-            exit 1
-        }
-
-        # Check the number strings
         try {
-            Get-Date -Year $Matches[1] | Out-Null
-            Get-Date -Month $Matches[2] | Out-Null
-            Get-Date -Day $Matches[3] | Out-Null
-            Get-Date -Hour $Matches[4] | Out-Null
-            Get-Date -Minute $Matches[5] | Out-Null
-            Get-Date -Second $Matches[6] | Out-Null
-            Write-Host "[OK] It's the correct date string"
-        }
-        catch {
-            Write-Error $_
-            exit 1
-        }
-
-        # Create the date time
-        $dateStr = [string]::Concat($Matches[1], "/", $Matches[2], "/", $Matches[3], " ", $Matches[4], ":", $Matches[5], ":", $Matches[6])
-
-        try {
-            $dateTime = [DateTime]::ParseExact($dateStr, "yyyy/MM/dd HH:mm:ss", $null)
+            $dateTime = Get-DateTimeFromStr -Str "$bn" -UnknownDayAs "$UnknownDayAs" -UnknownTimeAs "$UnknownTimeAs"
         }
         catch {
             Write-Error $_

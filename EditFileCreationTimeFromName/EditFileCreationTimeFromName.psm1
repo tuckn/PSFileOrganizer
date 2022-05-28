@@ -8,7 +8,7 @@ Change the file creation time from file name.
 Change the file creation time from file name.
 
 .Parameter FilePath
-The file path. It's need the file name including a year to a time sec.
+The file path. It needs to start from year to sec by default.
 
 .Example
 PS > (Get-Item -LiteralPath "C:\20181115T194401_myphoto.jpg").CreationTime
