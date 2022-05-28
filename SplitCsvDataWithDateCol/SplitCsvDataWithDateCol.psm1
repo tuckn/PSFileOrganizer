@@ -48,7 +48,7 @@ function Split-CsvDataWithDateCol {
         # Raad the CSV file
         $csvObj = $null
         try {
-            $csvObj = Import-Csv -Path $FilePath -Encoding UTF8
+            $csvObj = Import-Csv -LiteralPath $FilePath -Encoding UTF8
             # $csvObj | Format-Table # debug
         }
         catch {
@@ -66,13 +66,13 @@ function Split-CsvDataWithDateCol {
                     $yearMonth = $Matches[1] + $Matches[2]
 
                     if (-not($splitedObj.ContainsKey($yearMonth))) {
-                      $splitedObj.$yearMonth = [List[PSCustomObject]]::new()
+                        $splitedObj.$yearMonth = [List[PSCustomObject]]::new()
                     }
 
                     $splitedObj.$yearMonth.Add($row)
                 }
                 else {
-                  Write-Error "$dateStr is not matched with (\d{4})/(\d{2})"
+                    Write-Error "$dateStr is not matched with (\d{4})/(\d{2})"
                 }
             }
             catch {
@@ -82,17 +82,17 @@ function Split-CsvDataWithDateCol {
 
         # Write splited data into file
         foreach ($keyName in $splitedObj.Keys) {
-          try {
-              # Create destination folder
-              $yearDir = Join-Path -Path $DestFolder -ChildPath $keyName.Substring(0, 4)
-              [System.IO.Directory]::CreateDirectory($yearDir)
+            try {
+                # Create destination folder
+                $yearDir = Join-Path -Path $DestFolder -ChildPath $keyName.Substring(0, 4)
+                [System.IO.Directory]::CreateDirectory($yearDir)
 
-              $csvPath = Join-Path -Path $yearDir -ChildPath "$keyName.csv"
-              $splitedObj.$keyName | Export-Csv -NoTypeInformation $csvPath -Encoding UTF8
-          }
-          catch {
-              Write-Error $_
-          }
+                $csvPath = Join-Path -Path $yearDir -ChildPath "$keyName.csv"
+                $splitedObj.$keyName | Export-Csv -NoTypeInformation $csvPath -Encoding UTF8
+            }
+            catch {
+                Write-Error $_
+            }
         }
 
         return

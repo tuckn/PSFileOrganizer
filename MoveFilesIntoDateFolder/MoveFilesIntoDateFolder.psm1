@@ -70,7 +70,7 @@ function Move-FilesIntoDateFolder {
         # Write-Host $destFilePath # console.log
 
         try {
-            Move-Item -Path $FilePath -Destination $destFilePath
+            Move-Item -LiteralPath $FilePath -Destination $destFilePath
         }
         catch {
             Write-Error $_

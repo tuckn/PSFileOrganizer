@@ -15,7 +15,7 @@ $ErrorActionPreference = "Continue"
 Set-StrictMode -Version 2.0
 
 # FilePath is Foler
-if ((Get-Item $FilePath).PSIsContainer) {
+if ((Get-Item -LiteralPath $FilePath).PSIsContainer) {
     $childPath = Join-Path -Path "$FilePath" -ChildPath "*.*"
     foreach ($f in Get-ChildItem $childPath) {
         try {
