@@ -1,5 +1,5 @@
 ﻿# using module "..\GetDateTimeFromFileName\GetDateTimeFromFileName.psm1"
-using namespace System.Collections.Generic
+using namespace System.Collections.Generic # PowerShell 5
 
 <#
 .Synopsis

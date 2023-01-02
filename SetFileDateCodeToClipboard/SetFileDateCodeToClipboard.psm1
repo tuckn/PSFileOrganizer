@@ -14,12 +14,10 @@ The file path.
 The date format. For example "yyyy-MM-dd". Default is "yyyyMMddTHHmmss".
 
 .Example
-PS> Rename-FileIntoDateCode -FilePath "C:\myphoto.jpg"
-# Copy 20181115T194401 to the clilpboard
+PS> Set-FileDateCodeToClipboard -FilePath "C:\myphoto.jpg" -DateFormat "yyyyMMddTHHmmss"
 #>
 $ErrorActionPreference = "Stop"
 Set-StrictMode -Version 2.0
-# Import-Module -Name GetDateCodeFromFile -Verbose
 
 function Set-FileDateCodeToClipboard {
     [CmdletBinding()]

@@ -10,7 +10,7 @@ REM ECHO %FilePath%
 SET ColumnName=%~1
 IF "%ColumnName%"=="" (SET /P ColumnName="Input the column name: ")
 
-SET PS1_PATH=%~dp0\Run.ps1
+SET PS1_PATH=%~dp0Run.ps1
 @ECHO ON
 powershell -ExecutionPolicy Bypass -File "%PS1_PATH%" -FilePath %FilePath% -ColumnName "%ColumnName%"
 
