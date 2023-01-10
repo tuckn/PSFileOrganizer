@@ -15,37 +15,25 @@ Param(
     [String[]] $FilteredEvents = @("Created", "Changed", "Renamed", "Deleted"),
 
     [Parameter(Position = 4)]
-    [String] $QueueDir = ($env:TEMP | Join-Path -ChildPath $([System.Guid]::NewGuid().Guid))
+    [Boolean] $IncludesSubdir = $False,
+
+    [Parameter(Position = 5)]
+    [String] $QueueDir = ($env:TEMP | Join-Path -ChildPath $([System.Guid]::NewGuid().Guid)),
+
+    [Parameter(Position = 6)]
+    [String] $QueueFileName = ((Get-Date -Format "yyyyMMddTHHmmssK").Replace(':', '') + ".txt"),
+
+    [Parameter(Position = 7)]
+    [String] $QueueFileEncoding = "utf-8"
 )
 
 $ErrorActionPreference = "Continue"
-Set-StrictMode -Version 2.0
+Set-StrictMode -Version 3.0
 
-# FilePath is Foler
-# if ((Get-Item -LiteralPath $FilePath).PSIsContainer) {
-#     $childPath = Join-Path -Path "$FilePath" -ChildPath "*.*"
-#     foreach ($f in Get-ChildItem $childPath) {
-#         try {
-#             Get-MetadataFromFile -FilePath "$($f.FullName)" -DateFormat "$DateFormat" -OriginalName "$OriginalName"
-        Write-Host $FilteredEvents
-        Write-Host $FilteredEvents.Count
-Watch-FileAndWriteQueue -WatchingDir "$WatchingDir" -FilteredEvents $FilteredEvents
-#         }
-#         catch {
-#             Write-Error $_
-#         }
-#     }
-# }
-# # FilePath is File
-# elseif (Test-Path -LiteralPath $FilePath) {
-#     try {
-#         Get-MetadataFromFile -FilePath "$FilePath" -DateFormat "$DateFormat" -OriginalName "$OriginalName"
-#     }
-#     catch {
-#         Write-Error $_
-#     }
-# }
-# else {
-#     Write-Error "The file is not existing: `"$FilePath`""
-#     exit 1
-# }
+Watch-FileAndWriteQueue `
+    -WatchingDir "$WatchingDir" `
+    -IntervalSec $IntervalSec `
+    -FilteredName $FilteredName `
+    -FilteredEvents $FilteredEvents `
+    -IncludesSubdir $IncludesSubdir `
+    -QueueDir $QueueDir
