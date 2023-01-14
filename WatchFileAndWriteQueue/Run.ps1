@@ -18,13 +18,13 @@ Param(
     [String] $QueueDir = ($env:TEMP | Join-Path -ChildPath "Queue_$($([System.Guid]::NewGuid().Guid))"),
 
     [Parameter(Position = 5)]
-    [String] $QueueFileName = ((Get-Date -Format "yyyyMMddTHHmmssK").Replace(':', '') + ".txt"),
+    [String] $QueueFileNamePrefix = "",
 
     [Parameter(Position = 6)]
-    [String] $QueueFileEncoding = "utf-8",
+    [String] $QueueFileEncoding = "utf8",
 
     [Parameter(Position = 7)]
-    [Int16] $DotIntervalSec = 1
+    [Int16] $DotIntervalSec = 3
 )
 
 $ErrorActionPreference = "Continue"
@@ -32,8 +32,10 @@ Set-StrictMode -Version 3.0
 
 Watch-FileAndWriteQueue `
     -WatchingDir "$WatchingDir" `
-    -DotIntervalSec $DotIntervalSec `
     -FilteredName $FilteredName `
     -FilteredEvents $FilteredEvents `
     -IncludesSubdir $IncludesSubdir `
-    -QueueDir $QueueDir
+    -QueueDir $QueueDir `
+    -QueueFileNamePrefix $QueueFileNamePrefix `
+    -QueueFileEncoding $QueueFileEncoding `
+    -DotIntervalSec $DotIntervalSec

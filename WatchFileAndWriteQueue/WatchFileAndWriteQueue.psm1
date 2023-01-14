@@ -9,25 +9,28 @@ Get the older date time string from the specified file.
 The watched folder path.
 
 .Parameter FilteredName
-The triggered file name.
+The triggered file name. e.g.: "*.xls*"
 
 .Parameter FilterdEvents
-The watched event name.
+The watching event name.
 
 .Parameter IncludesSubdir
 IncludesSubdir
 
 .Parameter QueueDir
-The foler path to write queue files.
+The foler path to write queue files. Default is %TEMP%\Queue_{GUID}
 
-.Parameter QueueFileName
-QueueFileName
+.Parameter QueueFileNamePrefix
+A prefix of the queue file name. Default is "".
 
 .Parameter QueueFileEncoding
-QueueFileEncoding
+Default is utf8 (UTF8 with BOM).
+If your PoweShell less than 6 when you can only use "unknown,string,unicode,bigendianunicode,utf8,utf7,utf32,ascii,default,oem".
+
+[Out-File (Microsoft.PowerShell.Utility) - PowerShell | Microsoft Learn](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.utility/out-file?view=powershell-7.3#-encoding)
 
 .Parameter DotIntervalSec
-The interval second of displaying processing dot.
+The second of displaying processing dot interval.
 
 .Example
 PS> Watch-FileAndWriteQueue -WatchingDir "C:\notes" -FilteredName "*.xls*"
@@ -55,10 +58,10 @@ function Watch-FileAndWriteQueue {
         [String] $QueueDir = ($env:TEMP | Join-Path -ChildPath "Queue_$($([System.Guid]::NewGuid().Guid))"),
 
         [Parameter(Position = 5)]
-        [String] $QueueFileName = ((Get-Date -Format "yyyyMMddTHHmmssK").Replace(':', '') + ".txt"),
+        [String] $QueueFileNamePrefix = "",
 
         [Parameter(Position = 6)]
-        [String] $QueueFileEncoding = "utf-8",
+        [String] $QueueFileEncoding = "utf8",
 
         [Parameter(Position = 7)]
         [Int16] $DotIntervalSec = 3
@@ -67,13 +70,13 @@ function Watch-FileAndWriteQueue {
         # Checking the arguments
         # . {
         #     Write-Host "`$WatchingDir: $($WatchingDir)"
-        #     Write-Host "`$DotIntervalSec: $($DotIntervalSec)"
         #     Write-Host "`$FilteredName: $($FilteredName)"
         #     Write-Host "`$FilteredEvents: $($FilteredEvents)"
         #     Write-Host "`$IncludesSubdir: $($IncludesSubdir)"
         #     Write-Host "`$QueueDir: $($QueueDir)"
-        #     Write-Host "`$QueueFileName: $($QueueFileName)"
+        #     Write-Host "`$QueueFileNamePrefix: $($QueueFileNamePrefix)"
         #     Write-Host "`$QueueFileEncoding: $($QueueFileEncoding)"
+        #     Write-Host "`$DotIntervalSec: $($DotIntervalSec)"
         # }
 
         if (-not((Get-Item $WatchingDir).PSIsContainer)) {
@@ -82,8 +85,8 @@ function Watch-FileAndWriteQueue {
         }
 
         # Creating the queue folder
-        Write-Host "[info] Tha path of queue directory is `"$($queueDir)`""
-        [System.IO.Directory]::CreateDirectory($queueDir)
+        Write-Host "[info] Tha path of queue directory is `"$($QueueDir)`""
+        [System.IO.Directory]::CreateDirectory($QueueDir) | Out-Null
 
         # FileSystemWatcher for the watching files
         # https://docs.microsoft.com/ja-jp/dotnet/api/system.io.filesystemwatcher?view=net-5.0
@@ -95,7 +98,9 @@ function Watch-FileAndWriteQueue {
         # NOTE
         # An action passed to `Register-ObjectEvent` has their own local scope. Therefore, all variables defined in the current scope, such as the arguments of this function, are null in the action. Therefore, it is necessary to define the variables used in the action in PSObject and pass it as the argument `-MessageData` of `Register-ObjectEvent`.
         $msgData = New-Object psobject -property @{
-            QueueDirPath = $queueDir
+            QueueDirPath = $QueueDir
+            QueueFileNamePrefix = $QueueFileNamePrefix
+            QueueFileEncoding = $QueueFileEncoding
         }
 
         # action to execute after an event triggered
@@ -105,13 +110,15 @@ function Watch-FileAndWriteQueue {
 
                 # Shorthand
                 $queueDir = $Event.MessageData.QueueDirPath
+                $qFileNamePrefix = $Event.MessageData.QueueFileNamePrefix
+                $enc = $Event.MessageData.QueueFileEncoding
                 $changeType = $Event.SourceEventArgs.ChangeType
                 $evPath = $Event.SourceEventArgs.FullPath
                 $oldPath = $Event.SourceEventArgs.OldFullPath
 
                 # Setting the queue file path
                 $dt = $Event.TimeGenerated.ToString("yyyyMMddTHHmmss.ffffff")
-                $qFileName = "$($dt).txt"
+                $qFileName = "$($qFileNamePrefix)$($dt).txt"
                 $qFilePath = Join-Path -Path $queueDir -ChildPath $qFileName
 
                 # DATETIME [EVENT_NAME] FILE_PATH < OLD_PATH
@@ -119,7 +126,7 @@ function Watch-FileAndWriteQueue {
 
                 Write-Host "[info] $($evLogStr)"
 
-                $evLogStr | Out-File -LiteralPath $qFilePath -Append
+                $evLogStr | Out-File -LiteralPath $qFilePath -Append -Encoding $enc
             }
             catch {
                 Write-Host "[error] $($_.Exception.Message)"
