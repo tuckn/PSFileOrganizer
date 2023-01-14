@@ -14,22 +14,23 @@ The triggered file name.
 .Parameter FilterdEvents
 The watched event name.
 
+.Parameter IncludesSubdir
+IncludesSubdir
+
 .Parameter QueueDir
 The foler path to write queue files.
+
+.Parameter QueueFileName
+QueueFileName
+
+.Parameter QueueFileEncoding
+QueueFileEncoding
 
 .Parameter DotIntervalSec
 The interval second of displaying processing dot.
 
 .Example
-PS> Watch-FileAndWriteQueue -WatchingDir "C:\myphoto.jpg"
-Created:  2018/11/15 19:44:01
-Modefied: 2021/12/31 18:22:21
-20181115T194401
-
-.Example
-PS> Watch-FileAndWriteQueue -WatchingDir "C:\myphoto.jpg" -DotIntervalSec "yy-MM-dd" | Set-Clipboard
-Created:  2018/11/15 19:44:01
-Modefied: 2021/12/31 18:22:21
+PS> Watch-FileAndWriteQueue -WatchingDir "C:\notes" -FilteredName "*.xls*"
 #>
 $ErrorActionPreference = "Stop"
 Set-StrictMode -Version 3.0
@@ -63,21 +64,26 @@ function Watch-FileAndWriteQueue {
         [Int16] $DotIntervalSec = 3
     )
     Process {
-        Write-Host "`$WatchingDir: $($WatchingDir)"
-        Write-Host "`$DotIntervalSec: $($DotIntervalSec)"
-        Write-Host "`$FilteredName: $($FilteredName)"
-        Write-Host "`$FilteredEvents: $($FilteredEvents)"
-        Write-Host "`$IncludesSubdir: $($IncludesSubdir)"
-        Write-Host "`$QueueDir: $($QueueDir)"
-        Write-Host "`$QueueFileName: $($QueueFileName)"
-        Write-Host "`$QueueFileEncoding: $($QueueFileEncoding)"
+        # Checking the arguments
+        # . {
+        #     Write-Host "`$WatchingDir: $($WatchingDir)"
+        #     Write-Host "`$DotIntervalSec: $($DotIntervalSec)"
+        #     Write-Host "`$FilteredName: $($FilteredName)"
+        #     Write-Host "`$FilteredEvents: $($FilteredEvents)"
+        #     Write-Host "`$IncludesSubdir: $($IncludesSubdir)"
+        #     Write-Host "`$QueueDir: $($QueueDir)"
+        #     Write-Host "`$QueueFileName: $($QueueFileName)"
+        #     Write-Host "`$QueueFileEncoding: $($QueueFileEncoding)"
+        # }
 
         if (-not((Get-Item $WatchingDir).PSIsContainer)) {
             Write-Error "`$WatchingDir is not a folder. $($WatchingDir)"
             exit 1
         }
 
-        $global:streamWriter = [QueueWriter]::new($QueueDir, $QueueFileName, $QueueFileEncoding)
+        # Creating the queue folder
+        Write-Host "[info] Tha path of queue directory is `"$($queueDir)`""
+        [System.IO.Directory]::CreateDirectory($queueDir)
 
         # FileSystemWatcher for the watching files
         # https://docs.microsoft.com/ja-jp/dotnet/api/system.io.filesystemwatcher?view=net-5.0
@@ -86,25 +92,34 @@ function Watch-FileAndWriteQueue {
         $watcher.Filter = $FilteredName
         $watcher.IncludeSubdirectories = $IncludesSubdir
 
+        # NOTE
+        # An action passed to `Register-ObjectEvent` has their own local scope. Therefore, all variables defined in the current scope, such as the arguments of this function, are null in the action. Therefore, it is necessary to define the variables used in the action in PSObject and pass it as the argument `-MessageData` of `Register-ObjectEvent`.
+        $msgData = New-Object psobject -property @{
+            QueueDirPath = $queueDir
+        }
+
         # action to execute after an event triggered
         $registerAction = {
             try {
-                Write-Host "!" -NoNewline
+                Write-Host "!"
 
-                # $currentDate = Get-Date
-                # $dt = $currentDate.ToString("yyyyMMddTHHmmssK").Replace(':', '')
-                $dt = $Event.TimeGenerated.ToString("yyyy-MM-ddTHH:mm:ss.fffffffK")
-
+                # Shorthand
+                $queueDir = $Event.MessageData.QueueDirPath
                 $changeType = $Event.SourceEventArgs.ChangeType
-                Write-Host "[info] $($dt) $($changeType) Event" -ForegroundColor Cyan
-
                 $evPath = $Event.SourceEventArgs.FullPath
-                Write-Host "[info] filepath: $($evPath)"
-
                 $oldPath = $Event.SourceEventArgs.OldFullPath
-                Write-Host "[info] renamed filepath: $($oldPath)"
 
-                $global:streamWriter.WriteQueue($dt, $changeType, $oldPath, $evPath)
+                # Setting the queue file path
+                $dt = $Event.TimeGenerated.ToString("yyyyMMddTHHmmss.ffffff")
+                $qFileName = "$($dt).txt"
+                $qFilePath = Join-Path -Path $queueDir -ChildPath $qFileName
+
+                # DATETIME [EVENT_NAME] FILE_PATH < OLD_PATH
+                $evLogStr = "$($dt) [$($changeType)] `"$($evPath)`" < `"$($oldPath)`""
+
+                Write-Host "[info] $($evLogStr)"
+
+                $evLogStr | Out-File -LiteralPath $qFilePath -Append
             }
             catch {
                 Write-Host "[error] $($_.Exception.Message)"
@@ -114,19 +129,19 @@ function Watch-FileAndWriteQueue {
         # Add event handler jobs
         $handlers = . {
             if ($FilteredEvents.Contains("Created")) {
-                Register-ObjectEvent -InputObject $watcher -EventName "Created" -Action $registerAction -SourceIdentifier FSCreated
+                Register-ObjectEvent -InputObject $watcher -EventName "Created" -Action $registerAction -MessageData $msgData -SourceIdentifier FSCreated
             }
 
             if ($FilteredEvents.Contains("Changed")) {
-                Register-ObjectEvent -InputObject $watcher -EventName "Changed" -Action $registerAction -SourceIdentifier FSChanged
+                Register-ObjectEvent -InputObject $watcher -EventName "Changed" -Action $registerAction -MessageData $msgData -SourceIdentifier FSChanged
             }
 
             if ($FilteredEvents.Contains("Renamed")) {
-                Register-ObjectEvent -InputObject $watcher -EventName "Renamed" -Action $registerAction -SourceIdentifier FSRenamed
+                Register-ObjectEvent -InputObject $watcher -EventName "Renamed" -Action $registerAction -MessageData $msgData -SourceIdentifier FSRenamed
             }
 
             if ($FilteredEvents.Contains("Deleted")) {
-                Register-ObjectEvent -InputObject $watcher -EventName "Deleted" -Action $registerAction -SourceIdentifier FSDeleted
+                Register-ObjectEvent -InputObject $watcher -EventName "Deleted" -Action $registerAction -MessageData $msgData -SourceIdentifier FSDeleted
             }
         }
 
@@ -136,80 +151,41 @@ function Watch-FileAndWriteQueue {
 
         try {
             do {
-                Wait-Event -Timeout $intervalSec
+                Wait-Event -Timeout $DotIntervalSec
                 Write-Host "." -NoNewline
             } while ($true)
         }
         finally {
             Write-Host "[info] Stop watching for changes to `"$WatchingDir`""
 
-            # This gets executed when user presses CTRL+C
-            # Remove the stream writer
-            $streamWriter.Close()
-
             # Remove the event handlers
-            if ($FilteredEvents.Contains("Created")) {
-                Unregister-Event -SourceIdentifier FSCreated
-            }
+            . {
+                if ($FilteredEvents.Contains("Created")) {
+                    Unregister-Event -SourceIdentifier FSCreated
+                }
 
-            if ($FilteredEvents.Contains("Changed")) {
-                Unregister-Event -SourceIdentifier FSChanged
-            }
+                if ($FilteredEvents.Contains("Changed")) {
+                    Unregister-Event -SourceIdentifier FSChanged
+                }
 
-            if ($FilteredEvents.Contains("Renamed")) {
-                Unregister-Event -SourceIdentifier FSRenamed
-            }
+                if ($FilteredEvents.Contains("Renamed")) {
+                    Unregister-Event -SourceIdentifier FSRenamed
+                }
 
-            if ($FilteredEvents.Contains("Deleted")) {
-                Unregister-Event -SourceIdentifier FSDeleted
+                if ($FilteredEvents.Contains("Deleted")) {
+                    Unregister-Event -SourceIdentifier FSDeleted
+                }
             }
 
             # Remove background jobs
             $handlers | Remove-Job
 
             # Remove filesystemwatcher
-            $FileSystemWatcher.EnableRaisingEvents = $false
-            $FileSystemWatcher.Dispose()
+            $watcher.EnableRaisingEvents = $false
+            $watcher.Dispose()
         }
 
-        return $streamWriter.queueFilePath
-    }
-}
-
-class QueueWriter {
-    [string] $queueFilePath
-    [object] $streamWriter
-
-    QueueWriter(
-        [string] $queueDir,
-        [string] $queueFilename,
-        [string] $encoding = "utf-8"
-    ){
-        # Creating the folder
-        Write-Host "[info] Tha path of queue directory is `"$($queueDir)`""
-        [System.IO.Directory]::CreateDirectory($queueDir)
-
-        # Setting the queue file path
-        $this.queueFilePath = Join-Path -Path $queueDir -ChildPath $queueFilename
-
-        # StreamWriter for the queue file
-        # https://learn.microsoft.com/en-us/dotnet/api/system.io.streamwriter?view=net-7.0
-        $enc = [Text.Encoding]::GetEncoding($encoding)
-        $this.streamWriter = New-Object System.IO.StreamWriter($this.queueFilePath, $true, $enc)
-    }
-
-    WriteQueue(
-        [string] $dateString,
-        [string] $changeType,
-        [string] $oldPath,
-        [string] $evPath
-    ){
-        $str = "$($dateString): [$($changeType)] `"$($oldPath)`" > `"$($evPath)`""
-        $this.streamWriter.WriteLine($str)
-    }
-
-    Close(){
-        $this.streamWriter.Close()
+        return $QueueDir
     }
 }
 
