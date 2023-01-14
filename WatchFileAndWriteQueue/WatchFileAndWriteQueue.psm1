@@ -8,9 +8,6 @@ Get the older date time string from the specified file.
 .Parameter WatchingDir
 The watched folder path.
 
-.Parameter IntervalSec
-The watching interval second.
-
 .Parameter FilteredName
 The triggered file name.
 
@@ -20,6 +17,9 @@ The watched event name.
 .Parameter QueueDir
 The foler path to write queue files.
 
+.Parameter DotIntervalSec
+The interval second of displaying processing dot.
+
 .Example
 PS> Watch-FileAndWriteQueue -WatchingDir "C:\myphoto.jpg"
 Created:  2018/11/15 19:44:01
@@ -27,7 +27,7 @@ Modefied: 2021/12/31 18:22:21
 20181115T194401
 
 .Example
-PS> Watch-FileAndWriteQueue -WatchingDir "C:\myphoto.jpg" -IntervalSec "yy-MM-dd" | Set-Clipboard
+PS> Watch-FileAndWriteQueue -WatchingDir "C:\myphoto.jpg" -DotIntervalSec "yy-MM-dd" | Set-Clipboard
 Created:  2018/11/15 19:44:01
 Modefied: 2021/12/31 18:22:21
 #>
@@ -42,29 +42,29 @@ function Watch-FileAndWriteQueue {
         [String] $WatchingDir,
 
         [Parameter(Position = 1)]
-        [Int16] $IntervalSec = 4,
-
-        [Parameter(Position = 2)]
         [String] $FilteredName = "*",
 
-        [Parameter(Position = 3)]
+        [Parameter(Position = 2)]
         [String[]] $FilteredEvents = @("Created", "Changed", "Renamed", "Deleted"),
 
-        [Parameter(Position = 4)]
+        [Parameter(Position = 3)]
         [Boolean] $IncludesSubdir = $False,
 
-        [Parameter(Position = 5)]
+        [Parameter(Position = 4)]
         [String] $QueueDir = ($env:TEMP | Join-Path -ChildPath "Queue_$($([System.Guid]::NewGuid().Guid))"),
 
-        [Parameter(Position = 6)]
+        [Parameter(Position = 5)]
         [String] $QueueFileName = ((Get-Date -Format "yyyyMMddTHHmmssK").Replace(':', '') + ".txt"),
 
+        [Parameter(Position = 6)]
+        [String] $QueueFileEncoding = "utf-8",
+
         [Parameter(Position = 7)]
-        [String] $QueueFileEncoding = "utf-8"
+        [Int16] $DotIntervalSec = 3
     )
     Process {
         Write-Host "`$WatchingDir: $($WatchingDir)"
-        Write-Host "`$IntervalSec: $($IntervalSec)"
+        Write-Host "`$DotIntervalSec: $($DotIntervalSec)"
         Write-Host "`$FilteredName: $($FilteredName)"
         Write-Host "`$FilteredEvents: $($FilteredEvents)"
         Write-Host "`$IncludesSubdir: $($IncludesSubdir)"
@@ -90,7 +90,6 @@ function Watch-FileAndWriteQueue {
         $registerAction = {
             try {
                 Write-Host "!" -NoNewline
-                Write-Host $Event
 
                 # $currentDate = Get-Date
                 # $dt = $currentDate.ToString("yyyyMMddTHHmmssK").Replace(':', '')
@@ -202,10 +201,10 @@ class QueueWriter {
     WriteQueue(
         [string] $dateString,
         [string] $changeType,
-        [string] $evPath,
-        [string] $oldPath
+        [string] $oldPath,
+        [string] $evPath
     ){
-        $str = "$($dateString) $($changeType): $($oldPath) > $($evPath)"
+        $str = "$($dateString): [$($changeType)] `"$($oldPath)`" > `"$($evPath)`""
         $this.streamWriter.WriteLine($str)
     }
 
