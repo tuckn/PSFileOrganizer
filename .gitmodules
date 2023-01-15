@@ -1,0 +1,3 @@
+[submodule "WatchFileAndWriteQueue"]
+	path = WatchFileAndWriteQueue
+	url = https://github.com/tuckn/PSWatchFileAndWriteQueue.git
