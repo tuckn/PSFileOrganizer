@@ -25,6 +25,7 @@ function Remove-FileBackedupInPast {
     Param(
         [Parameter(Position = 0, Mandatory = $true)]
         [ValidateScript({ Test-Path -LiteralPath $_ })]
+        [ValidateScript({ (Get-Item $_).PSIsContainer })]
         [String] $DirPath,
 
         [Parameter(Position = 1, Mandatory = $true)]
@@ -40,11 +41,6 @@ function Remove-FileBackedupInPast {
         }
         catch {
             Write-Error $_
-            exit 1
-        }
-
-        if (-not($d.PSIsContainer)) {
-            Write-Error "$DirPath is not directory."
             exit 1
         }
 

@@ -9,7 +9,7 @@ REM ECHO %FilePath%
 
 SET PS1_PATH=%~dp0Run.ps1
 @ECHO ON
-powershell -ExecutionPolicy Bypass -File "%PS1_PATH%" -FilePath %FilePath% -DateFormat "yyyyMMddThhmmss+0900"
+powershell -ExecutionPolicy Bypass -File "%PS1_PATH%" -FilePath %FilePath% -DateFormat "yyyyMMddTHHmmss+0900"
 
 @ECHO OFF
 SET FilePath=

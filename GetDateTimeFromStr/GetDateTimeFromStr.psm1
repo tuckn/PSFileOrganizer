@@ -86,7 +86,7 @@ function Get-DateTimeFromStr {
         $minuteStr = ""
         $secondStr = ""
 
-        # yyyyMMddhhmmss,yyyyMMddThhmmss, yyyyMMdd_hh-mm-ss, yyyyMMdd-hh_mm_ss
+        # yyyyMMddHHmmss,yyyyMMddTHHmmss, yyyyMMdd_hh-mm-ss, yyyyMMdd-hh_mm_ss
         if ($Str -match "\d{4}[_-]*\d{2}[_-]*\d{2}[T\s_-]?(\d{2})[_-]*(\d{2})[_-]*(\d{2})") {
             $hourStr = $Matches[1]
             Write-Host ('hh: {0}' -f $hourStr)
