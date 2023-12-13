@@ -1,9 +1,0 @@
-Windows Registry Editor Version 5.00
-
-; Remove files backed up in past
-[HKEY_CLASSES_ROOT\*\shell\RemoveFileBackedupInPast]
-@="Remove files backed up in past"
-"Icon"="C:\\WINDOWS\\System32\\imageres.dll,241"
-
-[HKEY_CLASSES_ROOT\*\shell\RemoveFileBackedupInPast\command]
-@="C:\\Windows\\System32\\cmd.exe /c \"C:\\PSModules\\RemoveFileBackedupInPast\\RemoveFileBackedupInPast.cmd \"%1\"\""

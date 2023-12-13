@@ -1,0 +1,9 @@
+Windows Registry Editor Version 5.00
+
+; Remove files backed up in past
+[HKEY_CLASSES_ROOT\*\shell\RemoveOldBackupFiles]
+@="Remove old back up files"
+"Icon"="C:\\WINDOWS\\System32\\imageres.dll,241"
+
+[HKEY_CLASSES_ROOT\*\shell\RemoveOldBackupFiles\command]
+@="C:\\Windows\\System32\\cmd.exe /c \"C:\\PSFileOrganizer\\Scripts\\cmd\\RemoveOldBackupFiles.cmd \"%1\"\""

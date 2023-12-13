@@ -1,0 +1,26 @@
+Windows Registry Editor Version 5.00
+
+; Add date code to the file name prefix
+; [Folder]
+[HKEY_LOCAL_MACHINE\SOFTWARE\Classes\Folder\shell\RenameFilesWithDateCodeIso8601JpToPrefix]
+@="Add date code to the file name prefix"
+"Icon"="C:\\WINDOWS\\System32\\SHELL32.dll,133"
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\Classes\Folder\shell\RenameFilesWithDateCodeIso8601JpToPrefix\command]
+@="C:\\Windows\\System32\\cmd.exe /c \"C:\\PSFileOrganizer\\Scripts\\cmd\\RenameFilesWithDateCodeIso8601JpToPrefix.cmd \"%1\"\""
+
+; [File]
+[HKEY_CLASSES_ROOT\*\shell\RenameFilesWithDateCodeIso8601JpToPrefix]
+@="Add date code to the file name prefix"
+"Icon"="C:\\WINDOWS\\System32\\SHELL32.dll,133"
+
+[HKEY_CLASSES_ROOT\*\shell\RenameFilesWithDateCodeIso8601JpToPrefix\command]
+@="C:\\Windows\\System32\\cmd.exe /c \"C:\\PSFileOrganizer\\Scripts\\cmd\\RenameFilesWithDateCodeIso8601JpToPrefix.cmd \"%1\"\""
+
+; Replace the file name with datacode
+[HKEY_CLASSES_ROOT\*\shell\RenameFileWithDateCodeIso8601Jp]
+@="Replace the file name with datacode"
+"Icon"="C:\\WINDOWS\\System32\\SHELL32.dll,133"
+
+[HKEY_CLASSES_ROOT\*\shell\RenameFileWithDateCodeIso8601Jp\command]
+@="C:\\Windows\\System32\\cmd.exe /c \"C:\\PSFileOrganizer\\Scripts\\cmd\\RenameFileWithDateCodeIso8601Jp.cmd \"%1\"\""

@@ -1,0 +1,18 @@
+Windows Registry Editor Version 5.00
+
+; Move file into date folder yyyy/MM
+; [Folder]
+[HKEY_LOCAL_MACHINE\SOFTWARE\Classes\Folder\shell\MoveFileIntoDateFolder_yyyy_MM]
+@="Move file into date folder yyyy/MM"
+"Icon"="C:\\WINDOWS\\System32\\SHELL32.dll,300"
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\Classes\Folder\shell\MoveFileIntoDateFolder_yyyy_MM\command]
+@="C:\\Windows\\System32\\cmd.exe /c \"C:\\PSFileOrganizer\\Scripts\\cmd\\MoveFileIntoDateFolder_yyyy_MM.cmd \"%1\"\""
+
+; [File]
+[HKEY_CLASSES_ROOT\*\shell\MoveFileIntoDateFolder_yyyy_MM]
+@="Move file into date folder yyyy/MM"
+"Icon"="C:\\WINDOWS\\System32\\SHELL32.dll,300"
+
+[HKEY_CLASSES_ROOT\*\shell\MoveFileIntoDateFolder_yyyy_MM\command]
+@="C:\\Windows\\System32\\cmd.exe /c \"C:\\PSFileOrganizer\\Scripts\\cmd\\MoveFileIntoDateFolder_yyyy_MM.cmd \"%1\"\""
