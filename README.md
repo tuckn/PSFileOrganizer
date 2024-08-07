@@ -238,6 +238,15 @@ You can display help with the following command.
 Get-Help -Name Split-CsvDataWithDateCol -Full
 ```
 
+### Split-PdfByPages
+
+Splits a PDF file into multiple smaller PDF files, each containing a specified number of pages.
+It uses QPDF for the splitting process
+
+```powershell
+Split-PdfByPages -PdfFile "input.pdf" -TotalPages 442 -PagesPerSplit 2 -OutputDirectory "C:\output" -QpdfPath "C:\Program Files\qpdf\bin\qpdf.exe"
+```
+
 ## How to use
 
 (1) Download this repository as ZIP and extract it to your preferred folder, or clone it using the command below.
