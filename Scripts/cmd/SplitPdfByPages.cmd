@@ -5,16 +5,16 @@ SET PdfFile=%~1
 IF "%PdfFile%"=="" (SET /P PdfFile="Input the full path: ")
 ECHO %PdfFile%
 
-SET TotalPages=%~1
+SET TotalPages=%~2
 IF "%TotalPages%"=="" (SET /P TotalPages="Input the number of total pages: ")
 
-SET PagesPerSplit=%~1
+SET PagesPerSplit=%~3
 IF "%PagesPerSplit%"=="" (SET /P PagesPerSplit="Input the number of split pages: ")
 
-SET OutputDirectory=%~1
+SET OutputDirectory=%~4
 IF "%OutputDirectory%"=="" (SET /P OutputDirectory="Input the path of output directory: ")
 
-SET QpdfPath=%~1
+SET QpdfPath=%~5
 IF "%QpdfPath%"=="" (SET /P QpdfPath="Input the path of QPDF: ")
 
 SET PS1_PATH=%~dp0..\SplitPdfByPages.ps1
