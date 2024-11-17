@@ -4,7 +4,7 @@ REM FIXME Can not read a path including "&"
 SET FilePath=%~1
 IF "%FilePath%"=="" (SET /P FilePath="Input the full path: ")
 
-SET Tag=%~1
+SET Tag=%~2
 IF "%Tag%"=="" (SET /P Tag="Input a tag: ")
 
 SET PS1_PATH=%~dp0..\ManageFileTags.ps1
